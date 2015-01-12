@@ -1,8 +1,6 @@
 <?php
 
 /**
- * TwitterAppOAuth
- *
  * Application-only authentication for Twitter
  * (https://dev.twitter.com/oauth/application-only)
  *
@@ -13,7 +11,7 @@
 
 namespace Iksi;
 
-class TwitterAppOAuth
+class TwitterOAuth
 {
     protected $consumerKey;
     protected $consumerSecret;
