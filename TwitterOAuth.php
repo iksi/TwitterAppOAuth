@@ -16,7 +16,7 @@ class TwitterOAuth
     protected $consumerKey;
     protected $consumerSecret;
 
-    public function __construct($consumerKey, $consumerSecret, $cache)
+    public function __construct($consumerKey, $consumerSecret)
     {
         session_start();
 
