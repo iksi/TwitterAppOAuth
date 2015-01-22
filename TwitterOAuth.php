@@ -24,7 +24,7 @@ class TwitterOAuth
         $this->consumerSecret = $consumerSecret;
     }
 
-    protected function request($url, $header)
+    protected function fetch($url, $header)
     {
         $context = stream_context_create($header);
         $response = file_get_contents($url, false, $context);
@@ -55,7 +55,7 @@ class TwitterOAuth
                 ),
             );
     
-            $response = $this->request($url, $header);
+            $response = $this->fetch($url, $header);
 
             $_SESSION['bearerToken'] = $response['access_token'];
         }
@@ -80,13 +80,13 @@ class TwitterOAuth
 
         unset($_SESSION['bearerToken']);
 
-        return $this->request($url, $header);
+        return $this->fetch($url, $header);
     }
 
     /**
      * Api request
      */
-    public function fetch($resource, $arguments)
+    public function request($resource, $arguments)
     {
         $url = 'https://api.twitter.com/1.1/' . $resource . '.json?'
             . http_build_query($arguments);
@@ -98,6 +98,6 @@ class TwitterOAuth
             ),
         );
 
-        return $this->request($url, $header);
+        return $this->fetch($url, $header);
     }
 }
