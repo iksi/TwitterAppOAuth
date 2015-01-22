@@ -83,6 +83,9 @@ class TwitterOAuth
         return $this->request($url, $header);
     }
 
+    /**
+     * Api request
+     */
     public function fetch($resource, $arguments)
     {
         $url = 'https://api.twitter.com/1.1/' . $resource . '.json?'
