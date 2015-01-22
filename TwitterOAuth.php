@@ -29,7 +29,7 @@ class TwitterOAuth
         $context = stream_context_create($header);
         $response = file_get_contents($url, false, $context);
 
-        return json_decode($response, true);
+        return json_decode($response);
     }
 
     protected function getBearerTokenCredentials()
@@ -57,7 +57,7 @@ class TwitterOAuth
     
             $response = $this->fetch($url, $header);
 
-            $_SESSION['bearerToken'] = $response['access_token'];
+            $_SESSION['bearerToken'] = $response->access_token;
         }
 
         return $_SESSION['bearerToken'];
