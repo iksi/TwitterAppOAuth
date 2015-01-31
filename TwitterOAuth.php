@@ -24,12 +24,27 @@ class TwitterOAuth
         $this->consumerSecret = $consumerSecret;
     }
 
-    protected function fetch($url, $header)
+    protected function fetch($url, $header, $postFields = array())
     {
-        $context = stream_context_create($header);
-        $response = file_get_contents($url, false, $context);
+        $ch = curl_init();
 
-        return json_decode($response);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, false);
+
+        if ( ! empty($postFields)) {
+            $postFields = urldecode(http_build_query($postFields));
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+        }
+
+        $response = curl_exec($ch);
+        $responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+
+        curl_close($ch);
+
+        return ($responseCode === 200) ? json_decode($response) : false;
     }
 
     protected function getBearerTokenCredentials()
@@ -44,20 +59,21 @@ class TwitterOAuth
         if ( ! isset($_SESSION['bearerToken']))
         {
             $url = 'https://api.twitter.com/oauth2/token';
-    
-            $header = array(
-                'http' => array(
-                    'method' => 'POST',
-                    'header' => 'Content-type: application/x-www-form-urlencoded;'
-                        . 'charset=UTF-8' . PHP_EOL . 'Authorization: Basic '
-                        . $this->getBearerTokenCredentials() . PHP_EOL,
-                    'content' => 'grant_type=client_credentials'
-                ),
-            );
-    
-            $response = $this->fetch($url, $header);
 
-            $_SESSION['bearerToken'] = $response->access_token;
+            $header = array( 
+                'Authorization: Basic ' . $this->getBearerTokenCredentials(),
+                'Content-Type: application/x-www-form-urlencoded;charset=UTF-8'
+            );
+
+            $postFields = array(
+                'grant_type' => 'client_credentials'
+            );
+
+            $response = $this->fetch($url, $header, $postFields);
+
+            $_SESSION['bearerToken'] = ($response !== false)
+                ? $response->access_token
+                : false;
         }
 
         return $_SESSION['bearerToken'];
@@ -67,20 +83,19 @@ class TwitterOAuth
     {
         $url = 'https://api.twitter.com/oauth2/invalidate_token';
 
-        $header = array(
-            'http' => array(
-                'method' => 'POST',
-                'header' => 'Content-type: application/x-www-form-urlencoded;'
-                    . 'charset=UTF-8' . PHP_EOL . 'Authorization: Basic '
-                    . $this->getBearerTokenCredentials() . PHP_EOL
-                    . 'Accept: */*' . PHP_EOL,
-                'content' => 'access_token=' . $this->getBearerToken()
-            ),
+        $header = array( 
+            'Authorization: Basic ' . $this->getBearerTokenCredentials(),
+            'Accept: */*',
+            'Content-Type: application/x-www-form-urlencoded;charset=UTF-8'
+        );
+
+        $postFields = array(
+            'access_token' => $this->getBearerToken()
         );
 
         unset($_SESSION['bearerToken']);
 
-        return $this->fetch($url, $header);
+        return $this->fetch($url, $header, $postFields);
     }
 
     /**
@@ -92,10 +107,7 @@ class TwitterOAuth
             . http_build_query($arguments);
 
         $header = array(
-            'http' => array(
-                'method' => 'GET',
-                'header' => 'Authorization: Bearer ' . $this->getBearerToken(),
-            ),
+            'Authorization: Bearer ' . $this->getBearerToken()
         );
 
         return $this->fetch($url, $header);
