@@ -18,7 +18,9 @@ class TwitterOAuth
 
     public function __construct($consumerKey, $consumerSecret)
     {
-        session_start();
+        if (empty($_SESSION)) {
+            session_start();
+        }
 
         $this->consumerKey = $consumerKey;
         $this->consumerSecret = $consumerSecret;
