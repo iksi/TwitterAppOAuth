@@ -15,5 +15,5 @@ $arguments = array(
     'exclude_replies' => true
 );
 
-$results = $twitterOAuth->get('statuses/user_timeline', $arguments);
+$results = $twitterOAuth->request('statuses/user_timeline', $arguments);
 ```
