@@ -6,7 +6,7 @@ You can use this class to retrieve a user’s timeline or do a search.
 ## Usage
 
 ```PHP
-$twitterAppOAuth = new Iksi\TwitterOAuth($consumerKey, $consumerSecret);
+$twitterOAuth = new Iksi\TwitterOAuth($consumerKey, $consumerSecret);
 
 $arguments = array(
     'trim_user' => true,
